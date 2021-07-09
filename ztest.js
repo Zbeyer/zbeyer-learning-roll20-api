@@ -1,8 +1,3 @@
-/*
-	msg
-
- */
-
 /**
  * Utilities
  **/
@@ -233,6 +228,9 @@ var zbeyerMain = function (msg)
 	}
 };
 
+/**
+ * time to listen...
+ */
 on("ready", function ()
 {
 	on("chat:message", function (msg)
