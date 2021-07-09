@@ -11,112 +11,6 @@
  */
 
 /**
- {
- 	Token example
-	"_id": "-Mc2CVgggYbO1xSDnZX6",
-	"_pageid": "-M_NAqT3zMSlKcZHMnij",
-	"left": 735,
-	"top": 1295,
-	"width": 70,
-	"height": 70,
-	"rotation": 0,
-	"layer": "objects",
-	"isdrawing": false,
-	"flipv": false,
-	"fliph": false,
-	"imgsrc": "https://s3.amazonaws.com/files.d20.io/images/222853205/Ig0Okq-ZXy1lWYiAjPLmjA/thumb.png?16212210335555",
-	"name": "MANIFEST MIND",
-	"gmnotes": "",
-	"controlledby": "-MGzjeQFz2btCnlCxjE_",
-	"bar1_value": "1",
-	"bar1_max": "1",
-	"bar1_link": "",
-	"bar2_value": "1",
-	"bar2_max": "1",
-	"bar2_link": "",
-	"bar3_value": "4",
-	"bar3_max": "4",
-	"bar3_link": "",
-	"represents": "",
-	"aura1_radius": 0.675,
-	"aura1_color": "#05ff00",
-	"aura1_square": false,
-	"aura2_radius": 0.037500000000000006,
-	"aura2_color": "#ffffff",
-	"aura2_square": false,
-	"tint_color": "transparent",
-	"statusmarkers": "",
-	"showname": true,
-	"showplayers_name": true,
-	"showplayers_bar1": false,
-	"showplayers_bar2": false,
-	"showplayers_bar3": false,
-	"showplayers_aura1": true,
-	"showplayers_aura2": true,
-	"playersedit_name": true,
-	"playersedit_bar1": true,
-	"playersedit_bar2": true,
-	"playersedit_bar3": true,
-	"playersedit_aura1": true,
-	"playersedit_aura2": true,
-	"light_radius": "",
-	"light_dimradius": "",
-	"light_otherplayers": false,
-	"light_hassight": false,
-	"light_angle": "",
-	"light_losangle": "",
-	"light_multiplier": 1,
-	"adv_fow_view_distance": "",
-	"sides": "",
-	"currentSide": 0,
-	"lastmove": "665,1295",
-	"_type": "graphic",
-	"_subtype": "token",
-	"_cardid": "",
-	"has_bright_light_vision": false,
-	"has_night_vision": false,
-	"night_vision_tint": null,
-	"night_vision_distance": 0,
-	"emits_bright_light": false,
-	"bright_light_distance": 0,
-	"emits_low_light": false,
-	"low_light_distance": 0,
-	"has_limit_field_of_vision": false,
-	"limit_field_of_vision_center": 0,
-	"limit_field_of_vision_total": 0,
-	"has_limit_field_of_night_vision": false,
-	"limit_field_of_night_vision_center": 0,
-	"limit_field_of_night_vision_total": 0,
-	"has_directional_bright_light": false,
-	"directional_bright_light_total": 0,
-	"directional_bright_light_center": 0,
-	"has_directional_low_light": false,
-	"directional_low_light_total": 0,
-	"directional_low_light_center": 0,
-	"light_sensitivity_multiplier": 100,
-	"night_vision_effect": null,
-	"dim_light_opacity": "0.75",
-	"bar_location": null,
-	"compact_bar": null
-
-	[
-	{
-		"name": "Magnum opus",
-		"bio": "",
-		"gmnotes": "",
-		"_defaulttoken": 1625792429462,
-		"archived": false,
-		"inplayerjournals": "-MGzjeQFz2btCnlCxjE_",
-		"controlledby": "-MGzjeQFz2btCnlCxjE_",
-		"_id": "-Me7fXITOBAESyC-Vn80",
-		"_type": "character",
-		"avatar": "https://s3.amazonaws.com/files.d20.io/images/233035273/hCqQMJSyCAurm9ka_xP7Mw/med.jpg?1625790824"
-	}
-]
-}
- */
-
-/**
  * Utilities
  **/
 
@@ -130,6 +24,13 @@ var COMMAND_LIB = {
 	TEST: ('foo').toLowerCase(),
 };
 
+var successObject = function ()
+{
+	return {
+		success: 1,
+		status: "Okay"
+	};
+};
 
 var getFirstSelectedToken = function (selected)
 {
@@ -186,6 +87,38 @@ var stringByRemovingSubstring = function (string, subString)
 	return substrings.join(''); // 'Hello rld';
 };
 
+var doesKeyExistInObj = function (key, obj)
+{
+	var keys = Object.keys(obj);
+	log('keys: ' + prettyPrintObj(keys));
+
+	return (keys.indexOf(key) !== -1);
+};
+
+var propertyOnObject = function (property, obj)
+{
+	var keys = Object.keys(obj);
+	var index = -1;
+	keys.forEach(function (key, i)
+	{
+		var val = obj[key];
+		if (val === property) index = i;
+	});
+
+	var result;
+	if (index !== -1)
+	{
+		result = successObject();
+		result.data = {
+			keyIndex: index,
+			key: keys[index],
+			property: property,
+		};
+	}
+
+	return result;
+};
+
 var getCommand = function (msg)
 {
 	var msgString = (msg && msg.content);
@@ -210,8 +143,6 @@ var printText = function (SPEAKINGAS, MESSAGE, CALLBACK, OPTIONS)
 /**
  * Scripts
  */
-
-
 var spawnHolyWeapon = function (token)
 {
 	if (!token) return;
@@ -251,6 +182,11 @@ var zbeyerMain = function (msg)
 	if (!cleanCommand) return;
 	//log('cleanCommand: ' + cleanCommand);
 	//log('cleanMessage: ' + cleanMessage);
+	if (!propertyOnObject(cleanCommand, COMMAND_LIB))
+	{
+		log('command ' + cleanCommand + ' does not exist in COMMAND_LIB');
+		return;
+	}
 
 	var primaryToken = getFirstSelectedToken(msg.selected);
 	log('primaryToken: ' + prettyPrintObj(primaryToken));
