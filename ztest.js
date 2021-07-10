@@ -9,6 +9,8 @@ var ZBEYER_IMAGE_LIB = {
 var COMMAND_LIB = {
 	SUMMON_BOOK: ('knowledgeIsPower').toLowerCase(),
 	SUMMON_SPIRIT_WEAPON: ('spiritIsWilling').toLowerCase(),
+	SUMMON_BEN: ('bigBen').toLowerCase(),
+	SUMMON_SOCRATES: ('Socrates').toLowerCase(),
 	TEST: ('foo').toLowerCase(),
 };
 
@@ -35,6 +37,13 @@ var spawnFxOnToken = function (tok, type)
 var spawnTokenAtXY = function (tokenJSON, pageID, spawnX, spawnY)
 {
 	let baseObj = JSON.parse(tokenJSON);
+	log(`Trying to place ${prettyPrintObj(baseObj)}`);
+
+	// Cleanup in case we have the wrong imageURL...
+	var imgSrc = baseObj.imgsrc || '';
+	imgSrc = imgSrc.replace(/med.png/g, "thumb.png");
+	baseObj.imgsrc = imgSrc;
+
 	baseObj.pageid = pageID;
 	baseObj.left = spawnX;
 	baseObj.top = spawnY;
@@ -65,8 +74,8 @@ var spawnTokenForToken = function (params)
 		imgsrc: imgSrc,
 		name: name,
 		controlledby: playerlist ? playerlist : null,
-		//aura1_radius: 0,
-		//aura1_color: "#ffff00",
+		aura1_radius: 0,
+		aura1_color: "#ffff00",
 		showplayers_aura1: true
 	});
 };
@@ -208,15 +217,21 @@ var spawnSpellBook = function (msg)
 {
 	var token = getFirstSelectedToken(msg.selected);
 	if (!token) return;
-	// OLD
-	// var newToken = spawnTokenForToken({
-	// 	token: token, name: 'Book', imgSrc: ZBEYER_IMAGE_LIB.jakeBook
-	// });
 	spawnCharacterTokenNamed('Magnum opus', msg);
 	spawnFxOnToken(token, "burn-charm");
 	spawnFxOnToken(token, "burst-charm");
 	var skillName = "MANIFEST MIND";
 	sendChat(token.get("name"), "activated " + skillName);
+};
+
+var spawnSwarm = function (msg, name)
+{
+	var token = getFirstSelectedToken(msg.selected);
+	if (!token) return;
+	spawnCharacterTokenNamed(name, msg);
+	spawnFxOnToken(token, "burn-acid");
+	spawnFxOnToken(token, "burst-acid");
+	sendChat(token.get("name"), "called on " + name);
 };
 
 /**
@@ -250,6 +265,12 @@ var zbeyerMain = function (msg)
 			break;
 		case COMMAND_LIB.SUMMON_SPIRIT_WEAPON.toLowerCase():
 			spawnHolyWeapon(primaryToken);
+			break;
+		case COMMAND_LIB.SUMMON_BEN.toLowerCase():
+			spawnSwarm(msg, 'Big Ben');
+			break;
+		case COMMAND_LIB.SUMMON_SOCRATES.toLowerCase():
+			spawnSwarm(msg, 'Socrates');
 			break;
 		case COMMAND_LIB.TEST.toLowerCase():
 			break;
