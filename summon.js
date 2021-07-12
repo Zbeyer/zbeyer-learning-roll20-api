@@ -52,7 +52,11 @@ var zSummonMain = function (msg)
 	let spawnPageID = tok.get("pageid");
 	let spawnLeft = tok.get("left") + 70;    //spawn to adjacent right of selected token (currently hardcoded, expand later with args?)
 	let spawnTop = tok.get("top");
-	let fxType = params.fxType || "burst-holy";
+	let fxType = params.fxType || "burst-holy" || "burn-charm";
+	if (fxType)
+	{
+		fxType = fxType.toLowerCase().trim();
+	}
 
 	// Validate Character Exists
 	var check = findObjs({_type: "character", name: inputName}, {caseInsensitive: true})[0];
@@ -100,6 +104,6 @@ var zSummonMain = function (msg)
 		var newToken = createObj('graphic', baseObj);
 
 		// Play FX on new token
-		spawnFx(newToken.get("left"), newToken.get("top"), fxType, newToken.get("pageid"));
+		var fx = spawnFx(spawnLeft, spawnTop, fxType, spawnPageID);
 	});
 };
