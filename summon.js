@@ -24,13 +24,20 @@ var zSummonMain = function (msg)
 	let params = {};
 	arguments.forEach(function (arg)
 	{
+		arg = arg.replace(/[\"\''"]+/g, '');
+		arg = arg.replace(/[\'\n\r}{]+/g, '');
+		arg = arg.replace("<br/><br>", '');
+		arg = arg.replace(/<\/?[^>]+(>|$)/g, "");
+
 		let splitArg = arg.split(':');
 		if (splitArg && splitArg.length > 0)
 		{
+			splitArg[0] = splitArg[0].trimStart().trimEnd();
+			splitArg[1] = splitArg[1].trimStart().trimEnd();
 			params[splitArg[0]] = splitArg[1];
 		}
 	});
-
+	log(`params: ${JSON.stringify(params)}`);
 	// Get Selected Token
 	let selected = msg.selected;
 	if (selected === undefined)
@@ -53,10 +60,6 @@ var zSummonMain = function (msg)
 	let spawnLeft = tok.get("left") + 70;    //spawn to adjacent right of selected token (currently hardcoded, expand later with args?)
 	let spawnTop = tok.get("top");
 	let fxType = params.fxType || "burst-holy" || "burn-charm";
-	if (fxType)
-	{
-		fxType = fxType.toLowerCase().trim();
-	}
 
 	// Validate Character Exists
 	var check = findObjs({_type: "character", name: inputName}, {caseInsensitive: true})[0];
