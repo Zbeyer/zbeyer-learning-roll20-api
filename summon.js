@@ -3,7 +3,7 @@
  */
 on("ready", function ()
 {
-	on("chat:message", async function (msg)
+	on("chat:message", function (msg)
 	{
 		var commandIndex = msg.content.indexOf("!");
 		var zCommandIndex = msg.content.indexOf("!zSummon");
@@ -37,7 +37,8 @@ var zSummonMain = function (msg)
 			params[splitArg[0]] = splitArg[1];
 		}
 	});
-	log(`params: ${JSON.stringify(params)}`);
+	//log(`params: ${JSON.stringify(params)}`);
+
 	// Get Selected Token
 	let selected = msg.selected;
 	if (selected === undefined)
@@ -55,10 +56,18 @@ var zSummonMain = function (msg)
 		return;
 	}
 
+	let offsetX = parseInt(params.offsetX || 70);
+	let offsetY = parseInt(params.offsetY || 0);
+	let renameToken;
+	if (params.renameToken && params.renameToken.length)
+	{
+		renameToken = params.renameToken.trimStart().trimEnd().toUpperCase();
+	}
+
 	//set spawn point from selected  token properties
 	let spawnPageID = tok.get("pageid");
-	let spawnLeft = tok.get("left") + 70;    //spawn to adjacent right of selected token (currently hardcoded, expand later with args?)
-	let spawnTop = tok.get("top");
+	let spawnLeft = tok.get("left") + offsetX;    //spawn to adjacent right of selected token (currently hardcoded, expand later with args?)
+	let spawnTop = tok.get("top") + offsetY;
 	let fxType = params.fxType || "burst-holy" || "burn-charm";
 	let fxType2 = params.fxType2 || null;
 	let fxType3 = params.fxType3 || null;
@@ -109,6 +118,7 @@ var zSummonMain = function (msg)
 		baseObj.top = spawnTop;
 		baseObj.currentSide = baseObj.currentSide || 0;
 		baseObj.imgsrc = imgsrc;
+		if (renameToken && renameToken.length) baseObj.name = renameToken;
 
 		// Create Token from default
 		var newToken = createObj('graphic', baseObj);
